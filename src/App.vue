@@ -2,7 +2,12 @@
   <div id="app">
     <div class="space">
       <div class="planet"></div>
-      <div v-for="(item, index) in orbit" :key="index" :style="{ '--width': item+'px'}" class="orbit"></div>
+      <div 
+        v-for="(item, index) in orbit" 
+        :key="index" 
+        :style="{ '--width': item+'px'}" 
+        class="orbit"
+      ></div>
       <div 
         v-for="(item, index) in satelit" 
         class="sat" 
@@ -11,6 +16,10 @@
           'color-red': isRed(item.color),
           'color-green': isGreen(item.color),
           'color-orange': isOrange(item.color)
+        }"
+        :style="{
+          backgroundImage: 'url('+item.img_url+')',
+          '--width': sat.satSize+'px'
         }" 
       ></div>
     </div>
@@ -32,10 +41,8 @@ export default {
         da: 0.003,
         x: 0,
         y: 0,
-        center: { 
-          x: (100 - 5), 
-          y: (100 - 5)
-        }
+        center: 100,
+        satSize: 25
       },
       max: 600,
       divider: 1
@@ -44,8 +51,8 @@ export default {
   methods : {
     move(sat) {
       sat.a += sat.da
-      sat.x = sat.center.x + (sat.r * Math.sin(sat.a));
-      sat.y = sat.center.y + (sat.r * Math.cos(sat.a));
+      sat.x = (sat.center-sat.satSize) + (sat.r * Math.sin(sat.a));
+      sat.y = (sat.center-sat.satSize) + (sat.r * Math.cos(sat.a));
       sat.elt.style.top = sat.y + "px";
       sat.elt.style.left = sat.x + "px";
     },
@@ -89,7 +96,10 @@ export default {
         const maxDistance = Math.max(...unique);
         const divider   = this.max/maxDistance;
         this.divider    = divider; 
-        return unique.map(item => item*divider);
+        unique.sort(function(a, b){return a - b});
+        return unique.map((item, index) => {
+          return 1.3*item*divider*(item/(this.max/this.divider));
+        });
       } else {
         return [];
       }
@@ -99,7 +109,7 @@ export default {
         const arr = this.data.people.map(item => {
           return {
             ...item,
-            radius: (item.distance*this.divider)/2
+            radius: (1.3*item.distance*this.divider*(item.distance/(this.max/this.divider)))/2
           }
         });
         return arr;
@@ -118,7 +128,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 250px;
+  margin-top: 300px;
 }
 .space {
   position: relative;
@@ -139,28 +149,29 @@ export default {
   background-color: #ccc;
 }
 .orbit {
-  top: calc((200px - var(--width))/2); 
-  right: calc((200px - var(--width))/2);
+  top: calc((190px - var(--width))/2); 
+  right: calc((210px - var(--width))/2);
   --width: 200px;
   width: var(--width); 
   height: var(--width);
   border: solid 1px #ccc;    
 }
 .sat {
-  width: 10px; 
-  height: 10px;
+  width: var(--width); 
+  height: var(--width);
   background-color: #cccccc33;
+  background-size: contain;
 }
 .color-red {
-  border: solid 1px #B22222;
+  border: solid 2px #B22222;
   background-color: #B2222233;
 }
 .color-orange {
-  border: solid 1px #FF8C00;
+  border: solid 2px #FF8C00;
   background-color: #FF8C0033;
 }
 .color-green {
-  border: solid 1px #32CD32;
+  border: solid 2px #32CD32;
   background-color: #32CD3233;
 }
 </style>
